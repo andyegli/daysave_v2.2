@@ -1,0 +1,111 @@
+{
+  "name": "DaySave.app Development Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "daysave-dev",
+  "workspaceFolder": "/workspace",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "nodeGypDependencies": true,
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/google-cloud-cli:1": {
+      "installGcloudAlpha": true,
+      "installGcloudBeta": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "ms-vscode.vscode-typescript-next",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-sql-notebook",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-mysql",
+        "ms-vscode.vscode-node-azure-pack",
+        "GoogleCloudTools.cloudcode",
+        "jebbs.plantuml",
+        "ms-vscode.vscode-github-issue-notebooks",
+        "ms-vscode.vscode-pull-request-github",
+        "ritwickdey.liveserver",
+        "ms-vscode.vscode-markdown",
+        "ms-vscode.vscode-test-nodejs",
+        "ms-vscode.vscode-js-debug",
+        "usernamehw.errorlens",
+        "gruntfuggly.todo-tree",
+        "oderwat.indent-rainbow",
+        "streetsidesoftware.code-spell-checker",
+        "ms-vscode.vscode-security",
+        "bierner.emojisense",
+        "ms-vscode.vscode-rest-client"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "javascript.preferences.includePackageJsonAutoImports": "auto",
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "files.associations": {
+          "*.ejs": "html"
+        },
+        "emmet.includeLanguages": {
+          "ejs": "html"
+        },
+        "plantuml.server": "https://www.plantuml.com/plantuml",
+        "plantuml.render": "PlantUMLServer"
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 3306, 6379, 8080, 9229],
+  "portsAttributes": {
+    "3000": {
+      "label": "DaySave App",
+      "onAutoForward": "notify"
+    },
+    "3306": {
+      "label": "MySQL Database"
+    },
+    "6379": {
+      "label": "Redis Cache"
+    },
+    "8080": {
+      "label": "Preview Server"
+    },
+    "9229": {
+      "label": "Node Debug Port"
+    }
+  },
+
+  "postCreateCommand": "npm install && npm run setup:dev",
+  
+  "remoteEnv": {
+    "NODE_ENV": "development",
+    "DEBUG": "daysave:*",
+    "DATABASE_URL": "mysql://daysave_user:daysave_password@mysql:3306/daysave_dev",
+    "REDIS_URL": "redis://redis:6379",
+    "GOOGLE_CLOUD_PROJECT": "${localEnv:GOOGLE_CLOUD_PROJECT}",
+    "GOOGLE_APPLICATION_CREDENTIALS": "/workspace/.gcp/service-account.json"
+  },
+
+  "mounts": [
+    "source=${localEnv:HOME}/.config/gcloud,target=/home/vscode/.config/gcloud,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/.gcp,target=/workspace/.gcp,type=bind,consistency=cached"
+  ],
+
+  "initializeCommand": "mkdir -p ${localWorkspaceFolder}/.gcp",
+  
+  "updateContentCommand": "npm install",
+  
+  "postStartCommand": "npm run migrate:dev && npm run seed:dev"
+}
